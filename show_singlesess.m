@@ -1,4 +1,4 @@
-function show_singlesess( trcall, rate, tbfr, taft, hfig, N2PLOT, noiseflg);
+function show_singlesess( trcall, rate, tbfr, taft, hfig, N2PLOT, noiseflg, stim_times, stim_Fs);
 
 global guih
 

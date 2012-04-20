@@ -1,6 +1,6 @@
-function [trc1, trc2,rate] = load_data( stimlist, findx2take, indir, tbfr, taft)
+function [trcall,rate] = load_data( stimlist, findx2take, indir, tbfr, taft)
 
-global guih
+global guih 
 
 
 fname = char(stimlist.sess);
@@ -9,6 +9,7 @@ indir = [indir '\' fname '\mat\'];
 trc1 = [];
 trc2 = [];
 rate = [];
+
 
 for findx = stimlist.files(findx2take),
     trc = [];
@@ -38,14 +39,24 @@ for findx = stimlist.files(findx2take),
     if isfield(bhv, 'AMstim'),
         Tstim = bhv.AMstim;
         Trate = bhv.AMstim_KHz;
-    else
+        
+    elseif isfield(bhv, 'AMstim_on'),
+        Tstim = bhv.AMstim_on;
+        Trate = bhv.AMstim_on_KHz;
+
+    elseif isfield( bhv, 'StimTime'),
         Tstim = bhv.StimTime;
         Trate = bhv.StimTime_KHz;
+    else 
+        Tstim = 0;
+        Trate = 1;
     end
-    Tstim = round(Tstim*rate(1)*1000);
+    IxsStim = round(Tstim*Trate*1000);
 
-    if ~isempty(Tstim),
+    
+    if ~isempty(IxsStim),
         for el=1:4,
+            trcall(el).trc = [];
             if get( guih.SIGLFP,'Value'),
                 field1 = ['LFP' num2str(el)];
             else
@@ -58,19 +69,21 @@ for findx = stimlist.files(findx2take),
             end
             if uflag(el),
                 trc =  [];
-                cmnd = ['unit = unit' num2str(j) ';'];
-                eval(cmnd);
-                s1 = abs(tbfr) * rate(j);
-                s2 = abs(taft)  * rate(j);
-                tmptrc = zeros(length(Tstim),s2+s1+1);
-                Tstim = Tstim( find(Tstim > s1 & Tstim  <= length(unit)-s2));
-                for ii=1:length(Tstim),
-                    curs = Tstim(ii);
+                s1 = abs(tbfr) * rate;
+                s2 = abs(taft)  * rate;
+                tmptrc = zeros(length(IxsStim),s2+s1+1);
+                Tstim2take = IxsStim( find(IxsStim > s1 & IxsStim  <= length(unit)-s2));
+                for ii=1:length(Tstim2take),
+                    curs = Tstim2take(ii);
                     tmptrc(ii,:) =unit(curs-s1:curs+s2);
                 end;
                 trc = [trc;tmptrc];
                 trcall(el).trc = trc;
-                eval(cmnd);
+            end
+        end
+    else
+        for el=1:4,
+            trcall(el).trc = [];
         end
     end
 end

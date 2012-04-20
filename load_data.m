@@ -51,28 +51,38 @@ for findx = stimlist.files(findx2take),
         Tstim = 0;
         Trate = 1;
     end
-    Tstim = round(Tstim*Trate*1000);
+    IxsStim = round(Tstim*Trate*1000);
 
     
-    if ~isempty(Tstim),
+    if ~isempty(IxsStim),
         for el=1:4,
             trcall(el).trc = [];
             if get( guih.SIGLFP,'Value'),
                 field1 = ['LFP' num2str(el)];
             else
                 field1 = ['Unit' num2str(el)];
-            end
+			end
+			
             if isfield(wvf, field1),
                 unit = wvf.(field1);
                 rate =  wvf.([field1 '_KHz']);
                 uflag(el) =1;
-            end
+			end
+			
+			if get(guih.ArtRemFlag,'Value')
+				
+				us_factor=12; art_end=15; max_dead_time_dur=0.75; do_lin_decay=false;
+				unit= remove_artifact_advanced...
+				(unit, rate, Tstim, Trate, us_factor, art_end, max_dead_time_dur, do_lin_decay);
+			end
+
+
             if uflag(el),
                 trc =  [];
                 s1 = abs(tbfr) * rate;
                 s2 = abs(taft)  * rate;
-                tmptrc = zeros(length(Tstim),s2+s1+1);
-                Tstim2take = Tstim( find(Tstim > s1 & Tstim  <= length(unit)-s2));
+                tmptrc = zeros(length(IxsStim),s2+s1+1);
+                Tstim2take = IxsStim( find(IxsStim > s1 & IxsStim  <= length(unit)-s2));
                 for ii=1:length(Tstim2take),
                     curs = Tstim2take(ii);
                     tmptrc(ii,:) =unit(curs-s1:curs+s2);
