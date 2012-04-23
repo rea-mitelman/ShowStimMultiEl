@@ -71,7 +71,7 @@ for findx = stimlist.files(findx2take),
 			
 			if get(guih.ArtRemFlag,'Value')
 				
-				us_factor=12; art_end=15; max_dead_time_dur=0.75; do_lin_decay=false;
+				us_factor=8; art_end=15; max_dead_time_dur=0.75; do_lin_decay=false;
 				unit= remove_artifact_advanced...
 				(unit, rate, Tstim, Trate, us_factor, art_end, max_dead_time_dur, do_lin_decay);
 			end
