@@ -1,6 +1,6 @@
 function [trcall,rate] = load_data( stimlist, findx2take, indir, tbfr, taft)
 
-global guih 
+global guih SavedClearData
 
 
 fname = char(stimlist.sess);
@@ -70,10 +70,22 @@ for findx = stimlist.files(findx2take),
 			end
 			
 			if get(guih.ArtRemFlag,'Value')
-				
-				us_factor=8; art_end=15; max_dead_time_dur=0.75; do_lin_decay=false;
-				unit= remove_artifact_advanced...
-				(unit, rate, Tstim, Trate, us_factor, art_end, max_dead_time_dur, do_lin_decay);
+				if ~isfield(SavedClearData,fname) 
+					SavedClearData.(fname)=cell(0);
+				end
+				if length(SavedClearData.(fname))<findx || isempty(SavedClearData.(fname){findx})
+					SavedClearData.(fname){findx}=cell(4,1);
+				end
+				if ~isempty(SavedClearData.(fname){findx}{el})
+					unit=SavedClearData.(fname){findx}{el};
+				else
+					us_factor=8; art_end=15; max_dead_time_dur=0.75; do_lin_decay=false;
+					unit= remove_artifact_advanced...
+						(unit, rate, Tstim, Trate, us_factor, art_end, max_dead_time_dur, do_lin_decay);
+					SavedClearData.(fname){findx}{el}=unit;
+				end
+			
+			
 			end
 
 

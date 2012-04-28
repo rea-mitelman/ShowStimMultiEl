@@ -1,9 +1,9 @@
 function runshowstim( )
 
-global hfig guih stimlist
+global hfig guih stimlist SavedClearData
 global axscale 
 
-
+clear SavedClearData
 hfig = openfig('ShowStimGuiNew4.fig');
 guih = guihandles( hfig );
 
